@@ -1,0 +1,68 @@
+{
+  "width": 800,
+  "height": 416,
+  "color": {
+    "r": 245,
+    "g": 247,
+    "b": 250,
+    "a": 255
+  },
+  "imageLayers": [
+    {
+      "xCoordinate": 50,
+      "yCoordinate": 110,
+      "text": "do {",
+      "color": {
+        "r": 22,
+        "g": 63,
+        "b": 94,
+        "a": 255
+      },
+      "fontName": "Default",
+      "fontStyle": 0,
+      "fontSize": 35
+    },
+    {
+      "xCoordinate": 100,
+      "yCoordinate": 170,
+      "text": "iLookAtMyCode();",
+      "color": {
+        "r": 22,
+        "g": 63,
+        "b": 94,
+        "a": 255
+      },
+      "fontName": "Default",
+      "fontStyle": 0,
+      "fontSize": 35
+    },
+    {
+      "xCoordinate": 100,
+      "yCoordinate": 230,
+      "text": "andSeeItNeedsDebugging();",
+      "color": {
+        "r": 22,
+        "g": 63,
+        "b": 94,
+        "a": 255
+      },
+      "fontName": "Default",
+      "fontStyle": 0,
+      "fontSize": 35
+    },
+    {
+      "xCoordinate": 50,
+      "yCoordinate": 290,
+      "text": "} while(myGuitar.weep(WeepType.GENTLY))",
+      "color": {
+        "r": 22,
+        "g": 63,
+        "b": 94,
+        "a": 255
+      },
+      "fontName": "Default",
+      "fontStyle": 0,
+      "fontSize": 35
+    }
+  ]
+}

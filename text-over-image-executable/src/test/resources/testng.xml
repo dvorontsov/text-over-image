@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="text-over-image-executable-suite" annotations="JDK">
+    <test name="text-over-image-executable" verbose="10" annotations="JDK">
+        <packages>
+            <package name="denv.graphics.textoverimage.*"/>
+        </packages>
+    </test>
+</suite>
