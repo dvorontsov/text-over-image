@@ -4,6 +4,8 @@
 https://github.com/dvorontsov/text-over-image/tree/master/text-over-image-service
 Project is built as a service that can be used by other applications.  It can be wrapped into a REST endpoint or an executable.
 
+Service api can be found here - https://github.com/dvorontsov/text-over-image/blob/master/text-over-image-service/src/main/java/denv/graphics/textoverimage/api/TextOverImageService.java
+
 ## Executable Project
 https://github.com/dvorontsov/text-over-image/tree/master/text-over-image-executable
 Project is an executable jar that can be executed from command line with a command line this
