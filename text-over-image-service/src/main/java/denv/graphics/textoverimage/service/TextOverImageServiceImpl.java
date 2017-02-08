@@ -2,6 +2,7 @@ package denv.graphics.textoverimage.service;
 
 import com.google.gson.Gson;
 import denv.graphics.textoverimage.dto.ColorRGBA;
+import denv.graphics.textoverimage.dto.Gradient;
 import denv.graphics.textoverimage.dto.ImageLayer;
 import denv.graphics.textoverimage.dto.TextOverImageConfiguration;
 import denv.graphics.textoverimage.api.TextOverImageService;
@@ -18,15 +19,45 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * TextOverImageServiceImpl.
  * 
  */
 public class TextOverImageServiceImpl implements TextOverImageService {
-    
+
+    /**
+     * Linear interpolation.  Blends between between two values.
+     *
+     * @param startValue
+     * @param endValue
+     * @param t - parameter, where 0 =< t =< 1
+     * @return
+     */
+    int lerp(float startValue, float endValue, float t) {
+        if(t < 0) {
+            return 0;
+        } else if(t > 1) {
+            return 1;
+        } else {
+            return (int)((1 - t) * startValue + t * endValue);
+        }
+    }
+
+    /**
+     * Returns true, if configuration contains enough information to render gradient.
+     *
+     * @param configuration
+     * @return
+     */
+    boolean isGradient(TextOverImageConfiguration configuration) {
+        Gradient gradient = configuration.getGradient();
+        if(gradient != null && gradient.getSource() != null && gradient.getDest() != null) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public BufferedImage generateImage(TextOverImageConfiguration configuration) {
         if(configuration == null) {
@@ -41,17 +72,48 @@ public class TextOverImageServiceImpl implements TextOverImageService {
         WritableRaster writableRaster = image.getRaster();
         
         int arraySize = width * height * 4;
+        float horizontalLineIdx = 0;
         int[] pixels = new int[arraySize];
-        for(int i = 0; i < arraySize; i+=4) {
-            // Red channel
-            pixels[i] = backgroundColor.getR();
-            // Green channel
-            pixels[i + 1] = backgroundColor.getG();
-            // Blue channel
-            pixels[i + 2] = backgroundColor.getB();
-            // Alpha channel
-            pixels[i + 3] = backgroundColor.getA();
+
+        if(isGradient(configuration)) {
+            for(int i = 0; i < arraySize; i+=4) {
+                ColorRGBA source = configuration.getGradient().getSource();
+                ColorRGBA dest = configuration.getGradient().getDest();
+
+                if((i % (width * 4)) == 0) {
+                    horizontalLineIdx++;
+                }
+
+                float linearBlendParameter = horizontalLineIdx / height;
+
+                ColorRGBA result = new ColorRGBA(
+                        lerp(source.getR(), dest.getR(), linearBlendParameter),
+                        lerp(source.getG(), dest.getG(), linearBlendParameter),
+                        lerp(source.getB(), dest.getB(), linearBlendParameter),
+                        lerp(source.getA(), dest.getA(), linearBlendParameter));
+
+                // Red channel
+                pixels[i] = result.getR();
+                // Green channel
+                pixels[i + 1] = result.getG();
+                // Blue channel
+                pixels[i + 2] = result.getB();
+                // Alpha channel
+                pixels[i + 3] = result.getA();
+            }
+        } else {
+            for(int i = 0; i < arraySize; i+=4) {
+                // Red channel
+                pixels[i] = backgroundColor.getR();
+                // Green channel
+                pixels[i + 1] = backgroundColor.getG();
+                // Blue channel
+                pixels[i + 2] = backgroundColor.getB();
+                // Alpha channel
+                pixels[i + 3] = backgroundColor.getA();
+            }
         }
+
         writableRaster.setPixels(0, 0, width, height, pixels);
 
         Graphics2D graphics2D = image.createGraphics();
