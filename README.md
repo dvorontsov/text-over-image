@@ -24,15 +24,23 @@ which contains the following json
 {
   "width": 800,
   "height": 416,
-  "color": {
-    "r": 245,
-    "g": 247,
-    "b": 250,
-    "a": 255
+  "gradient" : {
+    "source": {
+      "r": 127,
+      "g": 178,
+      "b": 255,
+      "a": 255
+    },
+    "dest": {
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 255
+    }
   },
   "imageLayers": [
     {
-      "xCoordinate": 50,
+      "xCoordinate": 40,
       "yCoordinate": 110,
       "text": "do {",
       "color": {
@@ -42,7 +50,7 @@ which contains the following json
         "a": 255
       },
       "fontName": "Default",
-      "fontStyle": 0,
+      "fontStyle": 1,
       "fontSize": 35
     },
     {
@@ -56,7 +64,7 @@ which contains the following json
         "a": 255
       },
       "fontName": "Default",
-      "fontStyle": 0,
+      "fontStyle": 1,
       "fontSize": 35
     },
     {
@@ -70,11 +78,11 @@ which contains the following json
         "a": 255
       },
       "fontName": "Default",
-      "fontStyle": 0,
+      "fontStyle": 1,
       "fontSize": 35
     },
     {
-      "xCoordinate": 50,
+      "xCoordinate": 40,
       "yCoordinate": 290,
       "text": "} while(myGuitar.weep(WeepType.GENTLY))",
       "color": {
@@ -84,7 +92,7 @@ which contains the following json
         "a": 255
       },
       "fontName": "Default",
-      "fontStyle": 0,
+      "fontStyle": 1,
       "fontSize": 35
     }
   ]
