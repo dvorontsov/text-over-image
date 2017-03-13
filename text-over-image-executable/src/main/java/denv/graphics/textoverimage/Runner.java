@@ -27,16 +27,11 @@ public class Runner {
         String filePath = getFilePath(arrrrrgs);
         System.out.println("Input file path:" + filePath);
 
-        // Debug
-        filePath = "C:\\Users\\Den\\Projects\\text-over-image\\examples\\example-2\\text-over-image-input.json";
-      
         TextOverImageService textOverImageService = new TextOverImageServiceImpl();
         TextOverImageConfiguration configuration = textOverImageService.buildConfigurationFromFile(filePath);
         BufferedImage image = textOverImageService.generateImage(configuration);
         
         String outputFile = System.getProperty("user.dir") + "/image-output.png";
-        // Debug
-        outputFile = "C:\\Users\\Den\\Projects\\text-over-image\\examples\\example-2\\image-output.png";
         System.out.println("Output file path: " + outputFile);
         textOverImageService.writeImage(image, "png", outputFile);
 

@@ -1,7 +1,7 @@
 {
   "height": 416,
   "width": 800,
-  "imageSrc" : "examples/example-2/text-over-image-output.png",
+  "imageSrc" : "examples/example-2/background.png",
   "imageLayers": [
     {
       "type": "color-fill",
