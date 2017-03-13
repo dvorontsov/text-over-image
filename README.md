@@ -14,7 +14,9 @@ java -jar jar-file-name input-file.json
 ```
 
 
-## Example 
+# Examples
+
+## Example 1
 Input file such as 
 ```
 https://github.com/dvorontsov/text-over-image/blob/master/examples/example-1/text-over-image-input.json
@@ -100,3 +102,63 @@ which contains the following json
 ```
 produces output image
 ![Alt Text](https://github.com/dvorontsov/text-over-image/blob/master/examples/example-1/text-over-image-output.png)
+
+
+## Example 2
+Input file such as 
+```
+https://github.com/dvorontsov/text-over-image/blob/master/examples/example-2/text-over-image-input.json
+```
+which contains the following json
+```
+{
+  "height": 416,
+  "width": 800,
+  "imageSrc" : "examples/example-2/background.png",
+  "imageLayers": [
+    {
+      "type": "color-fill",
+      "xCoordinate": 0,
+      "yCoordinate": 250,
+      "color": {
+        "r": 211,
+        "g": 211,
+        "b": 211,
+        "a": 175
+      }
+    },
+    {
+      "type": "text",
+      "xCoordinate": 40,
+      "yCoordinate": 345,
+      "text": "This is overlay",
+      "color": {
+        "r": 100,
+        "g": 175,
+        "b": 94,
+        "a": 255
+      },
+      "fontName": "Default",
+      "fontStyle": 1,
+      "fontSize": 45
+    },
+    {
+      "type": "text",
+      "xCoordinate": 40,
+      "yCoordinate": 400,
+      "text": "Your ad here! :)",
+      "color": {
+        "r": 100,
+        "g": 175,
+        "b": 94,
+        "a": 255
+      },
+      "fontName": "Default",
+      "fontStyle": 1,
+      "fontSize": 45
+    }
+  ]
+}
+```
+produces output image
+![Alt Text](https://github.com/dvorontsov/text-over-image/blob/master/examples/example-2/text-over-image-output.png)
