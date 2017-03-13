@@ -5,7 +5,8 @@ package denv.graphics.textoverimage.dto;
  * 
  */
 public class ImageLayer {
-    
+
+    private ImageLayerType type;
     private int xCoordinate;
     private int yCoordinate;
     
@@ -70,7 +71,15 @@ public class ImageLayer {
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
     }
-    
+
+    public ImageLayerType getType() {
+        return type;
+    }
+
+    public void setType(ImageLayerType type) {
+        this.type = type;
+    }
+
     public static class ImageLayerBuilder {
         private ImageLayer imageLayer = new ImageLayer();
         

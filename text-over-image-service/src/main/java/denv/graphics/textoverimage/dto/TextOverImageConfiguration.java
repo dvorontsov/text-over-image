@@ -11,6 +11,7 @@ public class TextOverImageConfiguration {
     
     private int width;
     private int height;
+    private String imageSrc;
     private ColorRGBA color = new ColorRGBA();
     private Gradient gradient;
     private List<ImageLayer> imageLayers = new ArrayList<>();
@@ -57,6 +58,14 @@ public class TextOverImageConfiguration {
 
     public void setGradient(Gradient gradient) {
         this.gradient = gradient;
+    }
+
+    public String getImageSrc() {
+        return imageSrc;
+    }
+
+    public void setImageSrc(String imageSrc) {
+        this.imageSrc = imageSrc;
     }
 
     public static class TextOverImageConfigurationBuilder {

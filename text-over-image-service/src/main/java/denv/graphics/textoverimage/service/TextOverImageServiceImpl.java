@@ -1,11 +1,12 @@
 package denv.graphics.textoverimage.service;
 
 import com.google.gson.Gson;
+import denv.graphics.textoverimage.api.TextOverImageService;
 import denv.graphics.textoverimage.dto.ColorRGBA;
 import denv.graphics.textoverimage.dto.Gradient;
 import denv.graphics.textoverimage.dto.ImageLayer;
+import denv.graphics.textoverimage.dto.ImageLayerType;
 import denv.graphics.textoverimage.dto.TextOverImageConfiguration;
-import denv.graphics.textoverimage.api.TextOverImageService;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -13,12 +14,15 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.ComponentSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TextOverImageServiceImpl.
@@ -50,12 +54,16 @@ public class TextOverImageServiceImpl implements TextOverImageService {
      * @param configuration
      * @return
      */
-    boolean isGradient(TextOverImageConfiguration configuration) {
+    boolean isGradientBackground(TextOverImageConfiguration configuration) {
         Gradient gradient = configuration.getGradient();
         if(gradient != null && gradient.getSource() != null && gradient.getDest() != null) {
             return true;
         }
         return false;
+    }
+
+    boolean isImageBackground(TextOverImageConfiguration configuration) {
+        return (configuration.getImageSrc() != null && !configuration.getImageSrc().isEmpty());
     }
 
     @Override
@@ -75,7 +83,34 @@ public class TextOverImageServiceImpl implements TextOverImageService {
         float horizontalLineIdx = 0;
         int[] pixels = new int[arraySize];
 
-        if(isGradient(configuration)) {
+        if(isImageBackground(configuration)) {
+            BufferedImage backgroundImage = null;
+            try {
+                backgroundImage = ImageIO.read(new File(configuration.getImageSrc()));
+                int pixelStride = ((ComponentSampleModel)backgroundImage.getRaster().getSampleModel()).getPixelStride();
+                int[] backgroundPixels = new int[width * height * pixelStride];
+                backgroundImage.getRaster().getPixels(0, 0, width, height, backgroundPixels);
+
+                int backgroundPixelsIndex = 0;
+                if(pixelStride >= 3) {
+                    for(int i = 0; i < arraySize; i+=4) {
+                        // Red channel
+                        pixels[i] = backgroundPixels[backgroundPixelsIndex];
+                        // Green channel
+                        pixels[i + 1] = backgroundPixels[backgroundPixelsIndex + 1];
+                        // Blue channel
+                        pixels[i + 2] = backgroundPixels[backgroundPixelsIndex + 2];
+                        // Alpha channel
+                        pixels[i + 3] = 255;
+
+                        backgroundPixelsIndex +=pixelStride;
+                    }
+                }
+            } catch (IOException | RuntimeException e) {
+                e.printStackTrace();
+            }
+
+        } else if(isGradientBackground(configuration)) {
             for(int i = 0; i < arraySize; i+=4) {
                 ColorRGBA source = configuration.getGradient().getSource();
                 ColorRGBA dest = configuration.getGradient().getDest();
@@ -114,18 +149,27 @@ public class TextOverImageServiceImpl implements TextOverImageService {
             }
         }
 
-        writableRaster.setPixels(0, 0, width, height, pixels);
-
         Graphics2D graphics2D = image.createGraphics();
         RenderingHints rn = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, 
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         graphics2D.setRenderingHints(rn);
-        
+
+        List<ImageLayer> textLayers = new ArrayList<>();
         for(ImageLayer layer : configuration.getImageLayers()) {
-            applyLayer(graphics2D, layer);
+            if(layer.getType().equals(ImageLayerType.TEXT)) {
+                textLayers.add(layer);
+            } else {
+                applyLayer(pixels, graphics2D, layer, width, height);
+            }
         }
+
+        writableRaster.setPixels(0, 0, width, height, pixels);
+
+        for(ImageLayer layer : textLayers) {
+            applyLayer(pixels, graphics2D, layer, width, height);
+        }
+
         graphics2D.dispose();
-        
         return image;
     }
     
@@ -170,17 +214,40 @@ public class TextOverImageServiceImpl implements TextOverImageService {
         return gson.fromJson(json, TextOverImageConfiguration.class);
     }
 
-    void applyLayer(Graphics2D graphics2D, ImageLayer layer) {
-        int x = layer.getxCoordinate();
-        int y = layer.getyCoordinate();
-        Color color = new Color(layer.getColor().getR(), layer.getColor().getG(), layer.getColor().getB(), 
-                layer.getColor().getA());
-        String text = layer.getText();
-        String fontName = layer.getFontName();
-        int fontStyle = layer.getFontStyle();
-        int fontSize = layer.getFontSize();
-        
-        drawText(graphics2D, color, text, x, y, fontName, fontStyle, fontSize);
+    void applyLayer(int[] pixels, Graphics2D graphics2D, ImageLayer layer, int imageWidth, int imageHeight) {
+        ImageLayerType layerType = layer.getType();
+
+        switch (layerType) {
+            case TEXT: {
+                int x = layer.getxCoordinate();
+                int y = layer.getyCoordinate();
+                Color color = new Color(layer.getColor().getR(), layer.getColor().getG(), layer.getColor().getB(),
+                        layer.getColor().getA());
+                String text = layer.getText();
+                String fontName = layer.getFontName();
+                int fontStyle = layer.getFontStyle();
+                int fontSize = layer.getFontSize();
+
+                drawText(graphics2D, color, text, x, y, fontName, fontStyle, fontSize);
+            } break;
+            case COLOR_FILL: {
+                int x = layer.getxCoordinate();
+                int y = layer.getyCoordinate();
+
+                ColorRGBA colorRGBA = layer.getColor();
+
+                int startIndex = ((y - 1) * imageWidth + x)  * 4;
+                int endIndex = pixels.length;
+
+                for(int i = startIndex; i < endIndex; i+=4) {
+                    pixels[i] = lerp(pixels[i], colorRGBA.getR(), (float)colorRGBA.getA()/255);
+                    pixels[i + 1] = lerp(pixels[i + 1], colorRGBA.getG(), (float)colorRGBA.getA()/255);
+                    pixels[i + 2] = lerp(pixels[i + 2], colorRGBA.getB(), (float)colorRGBA.getA()/255);
+                    //pixels[i + 3] = lerp(pixels[i + 3], colorRGBA.getA(), (float)colorRGBA.getA()/255);
+                }
+            } break;
+
+        }
     }
     
     void drawText(Graphics2D graphics2D, Color color, String text, int x, int y, 
