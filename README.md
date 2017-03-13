@@ -105,6 +105,7 @@ produces output image
 
 
 ## Example 2
+Image generated in Example 1 is used as a background image in this example.
 Input file such as 
 ```
 https://github.com/dvorontsov/text-over-image/blob/master/examples/example-2/text-over-image-input.json
