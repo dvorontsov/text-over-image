@@ -17,7 +17,7 @@ java -jar jar-file-name input-file.json
 ## Example 
 Input file such as 
 ```
-https://github.com/dvorontsov/text-over-image/blob/master/examples/text-over-image-input.json
+https://github.com/dvorontsov/text-over-image/blob/master/examples/example-1/text-over-image-input.json
 ```
 which contains the following json
 ```
@@ -99,4 +99,4 @@ which contains the following json
 }
 ```
 produces output image
-![Alt Text](https://github.com/dvorontsov/text-over-image/blob/master/examples/text-over-image-output.png)
+![Alt Text](https://github.com/dvorontsov/text-over-image/blob/master/examples/example-1/text-over-image-output.png)
