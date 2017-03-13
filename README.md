@@ -14,8 +14,6 @@ java -jar jar-file-name input-file.json
 ```
 
 
-# Examples
-
 ## Example 1
 Input file such as 
 ```
