@@ -1,11 +1,13 @@
 package denv.graphics.textoverimage.api;
 
+import com.google.gson.JsonSyntaxException;
 import denv.graphics.textoverimage.dto.TextOverImageConfiguration;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 /**
- * TextOverImageService.
+ * TextOverImageService.  An interface to read image configuration and apply it to image file.
  * 
  */
 public interface TextOverImageService {
@@ -27,16 +29,20 @@ public interface TextOverImageService {
      * @param image
      * @param formatName
      * @param path
-     * @return
+     * @return False, if no appropriate writer is found.
+     *
+     * @throws IOException
      */
-    boolean writeImage(BufferedImage image, String formatName, String path);
+    boolean writeImage(BufferedImage image, String formatName, String path)
+            throws IOException;
     
     
     /**
      * Reads configuration file from disk and parses into string.
      * 
      * @param filePath
-     * @return
+     * @return String representation of configuration file.  Null, if exception occurred
+     * during reading the file.
      */
     String configurationFileToString(String filePath);
 
@@ -45,7 +51,7 @@ public interface TextOverImageService {
      * Reads configuration file from disk and parses into configuration object.
      * 
      * @param filePath
-     * @return
+     * @return TextOverImageConfiguration object.  Null, if file does not exist.
      */
     TextOverImageConfiguration buildConfigurationFromFile(String filePath);
     
@@ -56,8 +62,9 @@ public interface TextOverImageService {
      * as an image.
      * 
      * @param json
-     * @return TextOverImageConfiguration
+     * @return TextOverImageConfiguration object.
+     * @throws JsonSyntaxException
      */
-    TextOverImageConfiguration buildConfigurationFromJson(String json);
+    TextOverImageConfiguration buildConfigurationFromJson(String json) throws JsonSyntaxException;
     
 }

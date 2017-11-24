@@ -5,6 +5,7 @@ import denv.graphics.textoverimage.dto.TextOverImageConfiguration;
 import denv.graphics.textoverimage.service.TextOverImageServiceImpl;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 /**
  * Runner.
@@ -33,7 +34,11 @@ public class Runner {
         
         String outputFile = System.getProperty("user.dir") + "/image-output.png";
         System.out.println("Output file path: " + outputFile);
-        textOverImageService.writeImage(image, "png", outputFile);
+        try {
+            textOverImageService.writeImage(image, "png", outputFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         long tsEnd = System.currentTimeMillis();
         long timeDelta = tsEnd - tsBegin;

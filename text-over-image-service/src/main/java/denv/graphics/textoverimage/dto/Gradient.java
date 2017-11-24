@@ -9,6 +9,13 @@ public class Gradient {
     private ColorRGBA source;
     private ColorRGBA dest;
 
+    public Gradient() {}
+
+    public Gradient(ColorRGBA source, ColorRGBA dest) {
+        this.source = source;
+        this.dest = dest;
+    }
+
     public ColorRGBA getDest() {
         return dest;
     }

@@ -1,6 +1,7 @@
 package denv.graphics.textoverimage.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import denv.graphics.textoverimage.api.TextOverImageService;
 import denv.graphics.textoverimage.dto.ColorRGBA;
 import denv.graphics.textoverimage.dto.Gradient;
@@ -24,29 +25,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static denv.graphics.textoverimage.util.MathUtil.lerp;
+
 /**
  * TextOverImageServiceImpl.
  * 
  */
 public class TextOverImageServiceImpl implements TextOverImageService {
 
-    /**
-     * Linear interpolation.  Blends between between two values.
-     *
-     * @param startValue
-     * @param endValue
-     * @param t - parameter, where 0 =< t =< 1
-     * @return
-     */
-    int lerp(float startValue, float endValue, float t) {
-        if(t < 0) {
-            return 0;
-        } else if(t > 1) {
-            return 1;
-        } else {
-            return (int)((1 - t) * startValue + t * endValue);
-        }
-    }
+    static final Integer BYTES_PER_PIXEL = 4;
 
     /**
      * Returns true, if configuration contains enough information to render gradient.
@@ -69,7 +56,7 @@ public class TextOverImageServiceImpl implements TextOverImageService {
     @Override
     public BufferedImage generateImage(TextOverImageConfiguration configuration) {
         if(configuration == null) {
-            return null;
+            throw new IllegalArgumentException("Configuration object cannot be null.");
         }
         
         int width = configuration.getWidth();
@@ -79,7 +66,7 @@ public class TextOverImageServiceImpl implements TextOverImageService {
 
         WritableRaster writableRaster = image.getRaster();
         
-        int arraySize = width * height * 4;
+        int arraySize = width * height * BYTES_PER_PIXEL;
         float horizontalLineIdx = 0;
         int[] pixels = new int[arraySize];
 
@@ -93,7 +80,7 @@ public class TextOverImageServiceImpl implements TextOverImageService {
 
                 int backgroundPixelsIndex = 0;
                 if(pixelStride >= 3) {
-                    for(int i = 0; i < arraySize; i+=4) {
+                    for(int i = 0; i < arraySize; i += BYTES_PER_PIXEL) {
                         // Red channel
                         pixels[i] = backgroundPixels[backgroundPixelsIndex];
                         // Green channel
@@ -111,11 +98,11 @@ public class TextOverImageServiceImpl implements TextOverImageService {
             }
 
         } else if(isGradientBackground(configuration)) {
-            for(int i = 0; i < arraySize; i+=4) {
+            for(int i = 0; i < arraySize; i+=BYTES_PER_PIXEL) {
                 ColorRGBA source = configuration.getGradient().getSource();
                 ColorRGBA dest = configuration.getGradient().getDest();
 
-                if((i % (width * 4)) == 0) {
+                if((i % (width * BYTES_PER_PIXEL)) == 0) {
                     horizontalLineIdx++;
                 }
 
@@ -137,7 +124,7 @@ public class TextOverImageServiceImpl implements TextOverImageService {
                 pixels[i + 3] = result.getA();
             }
         } else {
-            for(int i = 0; i < arraySize; i+=4) {
+            for(int i = 0; i < arraySize; i += BYTES_PER_PIXEL) {
                 // Red channel
                 pixels[i] = backgroundColor.getR();
                 // Green channel
@@ -174,18 +161,14 @@ public class TextOverImageServiceImpl implements TextOverImageService {
     }
     
     @Override
-    public boolean writeImage(BufferedImage image, String formatName, String path) {
-        try {
-            return ImageIO.write(image, formatName, new File(path));
-        } catch (IOException | RuntimeException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean writeImage(BufferedImage image, String formatName, String path)
+            throws IOException {
+        return ImageIO.write(image, formatName, new File(path));
     }
 
     @Override
     public String configurationFileToString(String filePath) {
-        String result = null;
+        String result;
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(filePath));
             result = new String(encoded, Charset.defaultCharset());
@@ -197,6 +180,10 @@ public class TextOverImageServiceImpl implements TextOverImageService {
 
     @Override
     public TextOverImageConfiguration buildConfigurationFromFile(String filePath) {
+        if(filePath == null) {
+            throw new IllegalArgumentException("FilePath cannot be null");
+        }
+
         String json =  this.configurationFileToString(filePath);
         TextOverImageConfiguration configuration = null;
         if(json != null) {
@@ -206,7 +193,7 @@ public class TextOverImageServiceImpl implements TextOverImageService {
     }
 
     @Override
-    public TextOverImageConfiguration buildConfigurationFromJson(String json) {
+    public TextOverImageConfiguration buildConfigurationFromJson(String json) throws JsonSyntaxException {
         if(json == null || json.isEmpty()) {
             return new TextOverImageConfiguration();
         }
@@ -236,10 +223,10 @@ public class TextOverImageServiceImpl implements TextOverImageService {
 
                 ColorRGBA colorRGBA = layer.getColor();
 
-                int startIndex = ((y - 1) * imageWidth + x)  * 4;
+                int startIndex = ((y - 1) * imageWidth + x) * BYTES_PER_PIXEL;
                 int endIndex = pixels.length;
 
-                for(int i = startIndex; i < endIndex; i+=4) {
+                for(int i = startIndex; i < endIndex; i += BYTES_PER_PIXEL) {
                     pixels[i] = lerp(pixels[i], colorRGBA.getR(), (float)colorRGBA.getA()/255);
                     pixels[i + 1] = lerp(pixels[i + 1], colorRGBA.getG(), (float)colorRGBA.getA()/255);
                     pixels[i + 2] = lerp(pixels[i + 2], colorRGBA.getB(), (float)colorRGBA.getA()/255);
